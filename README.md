@@ -8,3 +8,16 @@ Exercício em Assembly que visa desenvolver um código que codifica 3 bytes para
 <div align="center">
 <img src="https://user-images.githubusercontent.com/90197643/190692376-50d646c1-d589-417d-8e5b-686581cc329d.PNG" width="700px" />
 </div>  
+
+# É preciso Instalar o NASM no Windows
+- No prompt de comando digite:
+
+winget install nasm -i
+
+- Adicione-o ao Caminho
+
+setx Path "%Path%;C:\Program Files\NASM\"
+
+- Reinicie o prompt de comando e verifique
+
+nasm --version
