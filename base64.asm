@@ -13,7 +13,7 @@
  ; _main_base64_encode
 ; Rotina que converte até 3 bytes em uma string de 4 caracteres Base 64.
 ;
-; A passagem de parametros deve ser feita utilizando a convenção de chamada C.
+; A passagem de parametros deve ser feita utilizando a convenção de chamada C. edi recebe esses parametro vindo do C
 ; A rotina recebe apenas um parametro inteiro de 32 bits, que representa a juncao de 4 bytes: count,byte1,byte2,byte3.
 ;
 ; Esses 4 bytes, extraidos dos 32 bits, representam as seguintes informacoes:
@@ -31,7 +31,7 @@ _main_base64_encode:
         sub     esp,4                   ; reservando 4 bytes na pilha 
         push    edi                     ; edi deve ser preservado (no windows), Ponteiro para uma string de destino
         push    esi                     ; esi deve ser preservado (no windows), Ponteiro para uma string de origem
-        push    ebx                     ; ebx deve ser preservado, Ponteiro para dados
+        push    ebx                     ; ebx deve ser preservado, Ponteiro para dados, valor de retorno
 
         ; inicio do codigo
         mov     ebx, 0
@@ -46,16 +46,16 @@ _main_base64_encode:
 
 loop:
         cmp     BYTE [ebp-4], 0         ; se nao faltar gerar mais nenhum byte
-        je      end
+        je      fim                     ; vai encerrar a chamada do Assembly
 
-        mov     esi,[ebp+8]             ; Ponteiro para uma string de origem recebe base da pilha + 8 bytes
+        mov     esi,[ebp+8]             ; Ponteiro para uma string de origem recebe base da pilha + 8 bytes. Pega o byte que sera convertido
 
         mov     ecx, 6                  ; contador recebe o valor 6
         imul    ecx, ebx                ; calculando deslocamento de count*6 bits
         shr     esi, cl                 ; shift right de cl=8 bits 
 
         and     esi,0x3F                ; Extraindo 6 bits
-        call    convert_caracter             ; chama a sub rotina pra converter 6 bits em caracter Base 64
+        call    convert_caracter        ; chama a sub rotina pra converter 6 bits em caracter Base 64
 
         mov     ecx, 8                  ; contador recebe o valor 8
         imul    ecx, ebx                ; calculando deslocamento de count*8 bits
@@ -71,11 +71,11 @@ loop:
         sub     BYTE [ebp-4], 1         ; contador de bytes faltantes para conversão - 1
         sub     ebx, 1                  ; menos 1 no deslocamento de trem de bits
         jmp     loop                    ; retorna ao loop
-end:
+fim:
         pop ebx                         ; recuperando ebx
         pop esi                         ; recuperando esi
         pop edi                         ; recuperando edi
-        leave                           ; mov esp,ebp / pop ebp 
+        leave                           ; mov esp,ebp / pop ebp, desaloca variaveis locais 
         ret                             ; the max will be in rax
 
         
@@ -142,21 +142,21 @@ _main_base64_decode:
         sub     esp,4                   ; reservando 4 bytes na stack 
         push    edi                     ; edi deve ser preservado (no windows), Ponteiro para uma string de destino
         push    esi                     ; esi deve ser preservado (no windows), Ponteiro para uma string de origem
-        push    ebx                     ; ebx deve ser preservado, Ponteiro para dados
+        push    ebx                     ; ebx deve ser preservado, Ponteiro para dados, valor de retorno
 
         ; inicio do codigo
         mov     ebx, 3                  ; recebe o valor 3 que representa 3 bytes
         mov     eax, 0                  ; a saída recebe o valor 0, pois caso não tenha caracter é atribuido o valor 0
 loop2:
-        mov     esi,[ebp+8]             ; bytes
+        mov     esi,[ebp+8]             ; recebe os bytes para a decodificacao
 
-        mov     ecx, 8
+        mov     ecx, 8                  ; contador recebe o valor 8
         imul    ecx, ebx                ; calculando deslocamento de count*8 bits
-        shr     esi, cl
+        shr     esi, cl                 ; shift right de 8 bits 
 
         and     esi,0xFF                ; Extraindo 8 bits
-        cmp     esi, '='                ; se chegamos em '=', é o final dos dados.
-        je      end2
+        cmp     esi, '='                ; se chegar em '=', é o final dos dados, ultimo caracter existente
+        je      fim_2                   ; 
 
         call    i_convert_caracter
 
@@ -173,14 +173,14 @@ loop2:
         add     eax, 0x01000000
 
         cmp     ebx, 0
-        je      end2
+        je      fim_2
         sub     ebx, 1
         jmp     loop2
-end2:
+fim_2:
         sub     eax, 0x01000000
-        pop ebx                         ; recuperando ebx
-        pop esi                         ; recuperando esi
-        pop edi                         ; recuperando edi
+        pop     ebx                     ; recuperando ebx
+        pop     esi                     ; recuperando esi
+        pop     edi                     ; recuperando edi
         leave                           ; mov esp,ebp / pop ebp 
         ret                             ; the max will be in rax
 ;================================================================
@@ -193,9 +193,9 @@ i_convert_caracter:
         cmp     esi, '+'                ; é um +?
         je      i_mais                  ; Se sim, vamos pra i_plus.
         cmp     esi, 'Z'                ; é menor ou igual ao ascii Z?
-        jnbe    i_letras_minusculas            ; Se não, só pode ser minusculo.
+        jnbe    i_letras_minusculas     ; Se não, só pode ser minusculo.
         cmp     esi, '9'                ; é menor ou igual ao ascii '9'?
-        jnbe    i_letras_maiusculas            ; Se não, só pode ser ascii maiusculo.
+        jnbe    i_letras_maiusculas     ; Se não, só pode ser ascii maiusculo.
         jmp     i_numeros               ; Se sim, só pode ser um número ascii.
 
 i_barra:
@@ -206,11 +206,6 @@ i_mais:
         mov     esi, 62
         ret
 
-i_numeros:
-        sub     esi, '0'
-        add     esi, 52
-        ret
-
 i_letras_minusculas:
         sub     esi, 'a'
         add     esi, 26
@@ -218,4 +213,9 @@ i_letras_minusculas:
 
 i_letras_maiusculas:
         sub     esi, 'A'
+        ret
+
+i_numeros:
+        sub     esi, '0'
+        add     esi, 52
         ret
