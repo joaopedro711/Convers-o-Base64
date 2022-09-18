@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <inttypes.h>
 
-extern "C" uint32_t base64_encode(uint32_t join);
-extern "C" uint32_t base64_decode(uint32_t join);
+extern "C" uint32_t main_base64_encode(uint32_t join);
+extern "C" uint32_t main_base64_decode(uint32_t join);
 
 static uint32_t print_count = 0;
 
@@ -98,7 +98,7 @@ void run_encode(char* i_fname, char* o_fname) {
         }
 
         uint32_t join = join_count_and_bytes(bytes_to_process, buffer);
-        uint32_t chars = base64_encode(join); // Aqui é a chamada do assembly.
+        uint32_t chars = main_base64_encode(join); // Aqui é a chamada do assembly.
         print_chars(chars, f_out);
     }
 
@@ -149,7 +149,7 @@ void run_decode(char* i_fname, char* o_fname) {
             }
         }
 
-        buffer = base64_decode(buffer); // Aqui é a chamada do assembly.
+        buffer = main_base64_decode(buffer); // Aqui é a chamada do assembly.
     } while (print_bytes(buffer, f_out) == 3);
     
     end:
