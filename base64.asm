@@ -26,14 +26,12 @@
 ; A funcao retorna 32 bits no eax, sendo que cada byte representa um caractere codificado em base64.
 
 _main_base64_encode:
-        push    ebp                     ; ebp deve ser preservado, Ponteiro para a base da pilha de frames
-        mov     ebp,esp                 ; ebp recebe o Ponteiro para o topo da pilha
-        sub     esp,4                   ; reservando 4 bytes na pilha 
-        push    edi                     ; edi deve ser preservado (no windows), Ponteiro para uma string de destino
-        push    esi                     ; esi deve ser preservado (no windows), Ponteiro para uma string de origem
-        push    ebx                     ; ebx deve ser preservado, Ponteiro para dados, valor de retorno
 
-        ; inicio do codigo
+        ; PROCEDIMENTO PADRAO PARA INICIO DE CODIGO
+        enter 0,0
+        pusha
+
+        ; INICIO DA LOGICA
         mov     ebx, 0
         mov     ebx, [ebp+8]            ; ponteiro de dados recebe base da pilha + 8 bytes acima
         shr     ebx, 24                 ; shift right, pega o valor de count
@@ -72,11 +70,11 @@ loop:
         sub     ebx, 1                  ; menos 1 no deslocamento de trem de bits
         jmp     loop                    ; retorna ao loop
 fim:
-        pop ebx                         ; recuperando ebx
-        pop esi                         ; recuperando esi
-        pop edi                         ; recuperando edi
-        leave                           ; mov esp,ebp / pop ebp, desaloca variaveis locais 
-        ret                             ; the max will be in rax
+        ;ENCERRAMENTO DO PROGRAMA
+        ;popa                           ;Nao sei a razao de nao funcionar
+        ;mov     eax, 0                 ;Nao sei a razao de nao funcionar
+        leave                            
+        ret                             
 
         
 ;================================================================
@@ -137,14 +135,12 @@ letras_minusculas:
 ;
 ;================================================================
 _main_base64_decode:
-        push    ebp                     ; ebp deve ser preservado
-        mov     ebp,esp                 ; ebp recebe o Ponteiro para o topo da pilha
-        sub     esp,4                   ; reservando 4 bytes na stack 
-        push    edi                     ; edi deve ser preservado (no windows), Ponteiro para uma string de destino
-        push    esi                     ; esi deve ser preservado (no windows), Ponteiro para uma string de origem
-        push    ebx                     ; ebx deve ser preservado, Ponteiro para dados, valor de retorno
 
-        ; inicio do codigo
+        ; PROCEDIMENTO PADRAO PARA INICIO DE CODIGO
+        enter 0,0
+        pusha
+
+        ; INICIO DA LOGICA
         mov     ebx, 3                  ; recebe o valor 3 que representa 3 bytes
         mov     eax, 0                  ; a saída recebe o valor 0, pois caso não tenha caracter é atribuido o valor 0
 loop2:
@@ -178,11 +174,12 @@ loop2:
         jmp     loop2
 fim_2:
         sub     eax, 0x01000000
-        pop     ebx                     ; recuperando ebx
-        pop     esi                     ; recuperando esi
-        pop     edi                     ; recuperando edi
-        leave                           ; mov esp,ebp / pop ebp 
-        ret                             ; the max will be in rax
+
+        ;ENCERRAMENTO DO PROGRAMA
+        ;popa                           ;Nao sei a razao de nao funcionar
+        ;mov     eax, 0                 ;Nao sei a razao de nao funcionar
+        leave                           
+        ret                             
 ;================================================================
 ; i_convert_caracter:
 ; Rotina inversa ao conver_esi. Será usada no processo de decode.
