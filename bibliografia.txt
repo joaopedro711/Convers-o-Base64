@@ -1,0 +1,12 @@
+Referências utilizadas para a realização do trabalho.
+
+https://mentebinaria.gitbook.io/engenharia-reversa/assembly/registradores
+
+https://youtube.com/playlist?list=PLxTkH01AauxRm0LFLlOA9RR5O6hBLqBtC
+
+https://stackoverflow.com/questions/57937925/how-to-install-nasm-in-windows-10
+
+https://stackoverflow.com/questions/47755183/nasm-linux-x64-encode-binary-to-base64
+
+https://fm4dd.com/programming/base64/base64_stringencode_c.shtm
+
